@@ -13,15 +13,15 @@ from utils import slug
 class Installer:
     """Copy setup files into the canonical simulator hierarchy."""
 
-    def install(self, files: Iterable[Path], destination: Path, dry_run: bool = False) -> int:
+    def install(self, files: Iterable[Path], destination: Path, dry_run: bool = False, extraction_root: Path | None = None) -> int:
         """Copy files preserving paths relative to the extraction root."""
         file_list = list(files)
         if not file_list:
             return 0
         # Extraction paths share a temporary root; derive it without depending
         # on a particular archive library implementation.
-        common = Path(os.path.commonpath([str(path) for path in file_list]))
-        if common.is_file():
+        common = extraction_root or Path(os.path.commonpath([str(path) for path in file_list]))
+        if extraction_root is None and common.is_file():
             common = common.parent
         count = 0
         for source in file_list:

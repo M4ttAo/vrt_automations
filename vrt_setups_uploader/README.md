@@ -4,7 +4,7 @@ Organizza automaticamente gli archivi di setup per LMU, ACC, Assetto Corsa EVO
 
 ## Installazione
 
-1. Installare Python 3.13 (Windows) e, per i file RAR, WinRAR/UnRAR nel PATH.
+1. Installare Python 3.13 (Windows) e, per i file RAR, WinRAR/UnRAR/7-Zip nel PATH oppure mettere `UnRAR.exe` accanto all'EXE.
 2. Creare l'ambiente: `py -3.13 -m venv .venv`.
 3. Attivarlo: `.venv\Scripts\activate`.
 4. Installare: `python -m pip install -r requirements.txt`.
@@ -25,6 +25,10 @@ cartella temporanea, copiati in:
 `DESTINATION_ROOT/<Game>/<Creator>/<Car>/<Track>`
 
 Infine l'archivio viene spostato in `archive/`. Log e errori sono in `logs/`.
+
+Se l'archivio contiene una sola cartella contenitore con un nome arbitrario,
+questa viene rimossa dal percorso di destinazione; le sottocartelle reali dei
+setup vengono invece mantenute.
 
 Impostando `DRY_RUN=True` vengono mostrati solo gli abbinamenti e le destinazioni:
 non vengono estratti, copiati o spostati file.

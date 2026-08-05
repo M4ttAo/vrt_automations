@@ -124,7 +124,11 @@ def main() -> int:
             destination = installer.destination(config.destination_root, game, creator.record["name"], car.record, track.record)
             console.print(f"[cyan]{archive.name}[/cyan] -> {destination} [{category}] (creator score {creator.score:.0f}, car {car.score:.0f}, track {track.score:.0f})")
             if not config.dry_run:
-                count = installer.install(extractor.extract(archive, config.temp_dir), destination)
+                extracted = extractor.extract(archive, config.temp_dir)
+                try:
+                    count = installer.install(extracted.files, destination, extraction_root=extracted.root)
+                finally:
+                    extractor.cleanup(extracted)
                 moved = move_to_archive(archive, config.archive_dir)
                 logger.info("archivio=%s auto=%s pista=%s creatore=%s destinazione=%s file=%d archive=%s tempo=%.2fs", archive.name, car.record, track.record, creator.record, destination, count, moved, time.perf_counter() - started)
             else:
