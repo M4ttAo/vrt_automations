@@ -1,0 +1,8 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+
+# Temporary extraction and test folders.
+.tmp/
+.test-drive/
