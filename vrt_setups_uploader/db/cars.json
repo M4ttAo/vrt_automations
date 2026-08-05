@@ -1,0 +1,168 @@
+[
+  {
+    "brand": "Ferrari",
+    "model": "296 GT3",
+    "class": [
+      "GT3"
+    ],
+    "series": [
+      "Universal"
+    ],
+    "aliases": [
+      "Ferrari 296 GT3",
+      "f296",
+      "ferrari296",
+      "296gt3"
+    ],
+    "id": "13763e45c1de4244b8da428c8c3ba022"
+  },
+  {
+    "brand": "Ferrari",
+    "model": "488 GT3 Evo",
+    "class": [
+      "GT3"
+    ],
+    "series": [
+      "Universal"
+    ],
+    "aliases": [
+      "Ferrari 488 GT3 Evo",
+      "488gt3",
+      "488gt3evo"
+    ],
+    "id": "96dd00b4d2a7442d862ed391311c2c03"
+  },
+  {
+    "brand": "BMW",
+    "model": "M4 GT3",
+    "class": [
+      "GT3"
+    ],
+    "series": [
+      "Universal"
+    ],
+    "aliases": [
+      "BMW M4 GT3",
+      "bmwm4gt3",
+      "m4gt3",
+      "bmw m4 lmgt3"
+    ],
+    "id": "7edfe52721364bfcaa74574c71eb7b2e"
+  },
+  {
+    "brand": "Porsche",
+    "model": "911 GT3 R (992)",
+    "class": [
+      "GT3"
+    ],
+    "series": [
+      "Universal"
+    ],
+    "aliases": [
+      "Porsche 911 GT3 R (992)",
+      "992",
+      "992gt3r",
+      "porsche992"
+    ],
+    "id": "fdd61d44e6d64de68c0691dd21e30c9c"
+  },
+  {
+    "brand": "Lamborghini",
+    "model": "Huracan GT3 Evo2",
+    "class": [
+      "GT3"
+    ],
+    "series": [
+      "Universal"
+    ],
+    "aliases": [
+      "Lamborghini Huracan GT3 Evo2",
+      "huracan",
+      "lamborghinigt3"
+    ],
+    "id": "727e9660d01a430eb7ce6f6dd49882de"
+  },
+  {
+    "brand": "McLaren",
+    "model": "720S GT3",
+    "class": [
+      "GT3"
+    ],
+    "series": [
+      "Universal"
+    ],
+    "aliases": [
+      "McLaren 720S GT3",
+      "720s",
+      "mclaren720"
+    ],
+    "id": "e4c44e60368d438da2b2fe1cc57189ac"
+  },
+  {
+    "id": "bc79a4e7bb1d4f6c8c4ff024247a34ca",
+    "brand": "Oreca",
+    "model": "07",
+    "class": [
+      "LMP2",
+      "P2"
+    ],
+    "series": [
+      "WEC"
+    ],
+    "aliases": [
+      "Oreca 07",
+      "oreca07wec",
+      "oreca 07 wec",
+      "oreca wec lmp2"
+    ]
+  },
+  {
+    "id": "46e8cb55bd174d009946c952fd5b7f55",
+    "brand": "BMW",
+    "model": "BMW",
+    "class": [
+      "HY"
+    ],
+    "series": [
+      "Universal"
+    ],
+    "aliases": [
+      "BMW BMW",
+      "BMW",
+      "BMW HY"
+    ]
+  },
+  {
+    "id": "6aab99ac8d4f4f44a2a4a2e5e6f7a8b9",
+    "brand": "Oreca",
+    "model": "07",
+    "class": [
+      "LMP2",
+      "P2"
+    ],
+    "series": [
+      "ELMS"
+    ],
+    "aliases": [
+      "oreca07elms",
+      "oreca 07 elms",
+      "oreca 07 lmp2 elms",
+      "oreca elms p2"
+    ]
+  },
+  {
+    "id": "008cda51fe3b4a80ac09c307d91fa8ff",
+    "brand": "Duqueine",
+    "model": "D09",
+    "class": [
+      "LMP3"
+    ],
+    "series": [
+      "WEC"
+    ],
+    "aliases": [
+      "Duqueine D09",
+      "WEC"
+    ]
+  }
+]

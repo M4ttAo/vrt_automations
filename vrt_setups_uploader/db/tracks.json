@@ -1,0 +1,79 @@
+[
+  {
+    "name": "Daytona",
+    "country": "United States",
+    "aliases": [
+      "Daytona",
+      "daytona road",
+      "day"
+    ],
+    "id": "3c5b13e7f9ae4c55aa735b630019064a"
+  },
+  {
+    "name": "Monza",
+    "country": "Italy",
+    "aliases": [
+      "Monza"
+    ],
+    "id": "179af007c2854662bd56d2093ab8b204"
+  },
+  {
+    "name": "Spa-Francorchamps",
+    "country": "Belgium",
+    "aliases": [
+      "Spa-Francorchamps",
+      "spa"
+    ],
+    "id": "0c933f59c3934bad8460e12715a0b636"
+  },
+  {
+    "name": "Nurburgring",
+    "country": "Germany",
+    "aliases": [
+      "Nurburgring",
+      "nordschleife"
+    ],
+    "id": "36a4d56700654fd486053e65bb971c68"
+  },
+  {
+    "name": "Imola",
+    "country": "Italy",
+    "aliases": [
+      "Imola"
+    ],
+    "id": "e7f24dca10914495a68692e9eda5f584"
+  },
+  {
+    "name": "Silverstone",
+    "country": "United Kingdom",
+    "aliases": [
+      "Silverstone"
+    ],
+    "id": "ca5f5233814d417eaa8d6c92c16df39b"
+  },
+  {
+    "name": "Le Mans",
+    "country": "France",
+    "aliases": [
+      "Le Mans",
+      "lemans"
+    ],
+    "id": "15a292b846bf46858a1aa7421c94138a"
+  },
+  {
+    "id": "c3a5094c4f544050a07771b69f81ae16",
+    "name": "Bahrain",
+    "aliases": [
+      "Bahrain"
+    ],
+    "country": "Qatar"
+  },
+  {
+    "id": "a2a0cb185b0146b0870732739419c6a8",
+    "name": "Fuji",
+    "aliases": [
+      "Fuji"
+    ],
+    "country": "Giappone"
+  }
+]

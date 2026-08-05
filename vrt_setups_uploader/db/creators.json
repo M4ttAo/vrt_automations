@@ -1,0 +1,31 @@
+[
+  {
+    "name": "GO",
+    "aliases": [
+      "GO"
+    ],
+    "id": "1499904ef541455dba858a12c6037b0e"
+  },
+  {
+    "name": "HYMO",
+    "aliases": [
+      "HYMO",
+      "E-Sports"
+    ],
+    "id": "78957fc74e474e5185a719ceb0ee768d"
+  },
+  {
+    "name": "SIMSETUPS",
+    "aliases": [
+      "SIMSETUPS"
+    ],
+    "id": "d4ba885bbfae4a09b85f3ca31c70c3f9"
+  },
+  {
+    "id": "30db4491bb584ca69b111ad729c6f096",
+    "name": "TRT",
+    "aliases": [
+      "TRT"
+    ]
+  }
+]
