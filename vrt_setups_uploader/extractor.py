@@ -69,13 +69,20 @@ class ArchiveExtractor:
         if rarfile.UNRAR_TOOL and (Path(rarfile.UNRAR_TOOL).exists() or shutil.which(rarfile.UNRAR_TOOL)):
             return
         executable_names = ("unrar", "UnRAR.exe", "unar", "bsdtar", "7z", "7z.exe")
-        application_dir = Path(sys.executable).resolve().parent
+        application_dirs = [Path(sys.executable).resolve().parent]
+        bundled_dir = getattr(sys, "_MEIPASS", None)
+        if bundled_dir:
+            application_dirs.append(Path(bundled_dir))
         for executable in executable_names:
-            local_tool = application_dir / executable
-            resolved = shutil.which(executable) or (str(local_tool) if local_tool.is_file() else None)
+            resolved = shutil.which(executable)
             if resolved:
                 rarfile.UNRAR_TOOL = resolved
                 return
+            for application_dir in application_dirs:
+                local_tool = application_dir / executable
+                if local_tool.is_file():
+                    rarfile.UNRAR_TOOL = str(local_tool)
+                    return
         raise RuntimeError("Per estrarre RAR installare UnRAR, WinRAR o 7-Zip e aggiungerlo al PATH")
 
     @staticmethod
