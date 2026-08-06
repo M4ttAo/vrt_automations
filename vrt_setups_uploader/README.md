@@ -25,6 +25,10 @@ produttore/modello/classi/campionato per un'auto, nome/nazione per un circuito,
 nome per un creatore, oltre all'alias preciso. In esecuzione normale i file sono estratti in una
 cartella temporanea, copiati in:
 
+Per un'auto non riconosciuta viene prima scelta la classe e poi viene mostrato
+solo l'elenco delle auto di quella classe. L'opzione `0. Nuovo record` e sempre
+riservata alla creazione di auto, circuiti e creatori.
+
 `DESTINATION_ROOT/<Game>/<Creator>/<Car>/<Track>`
 
 Per le auto appartenenti a WEC o ELMS viene aggiunto il campionato tra auto e

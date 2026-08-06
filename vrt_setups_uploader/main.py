@@ -50,34 +50,35 @@ def ask_entity(kind: str, records: list[dict], filename: str, detected_text: str
     labels = {"cars": "Auto", "tracks": "Circuito", "creators": "Creatore", "class": "Categoria", "series": "Campionato/versione"}
     console.print(f"\nFile in esame: [yellow]{filename}[/yellow]")
     print(f"\n{labels.get(kind, kind)} non riconosciuto.")
+    if kind in {"class", "series"}:
+        return records[ask_number("Seleziona voce", len(records), allow_zero=False) - 1]
+
+    selected_class = None
+    if kind == "cars":
+        classes = sorted({canonical_class(str(value)) for record in records for value in record.get("class", [])} | {"GT3", "GT4", "HY", "LMP2", "LMP3", "CUP"})
+        print("Classe dell'auto:")
+        for index, value in enumerate(classes, 1):
+            print(f"{index}. [{value}]")
+        selected_class = classes[ask_number("Seleziona classe", len(classes), allow_zero=False) - 1]
+        records = [record for record in records if selected_class in {canonical_class(str(value)) for value in record.get("class", [])}]
+
     for index, record in enumerate(records, 1):
         if kind == "cars":
             car_name = f"{record.get('brand', '')} {record.get('model', '')}".strip()
-            classes = ", ".join(f"[{value}]" for value in record.get("class", []))
             series = ", ".join(f"[{value}]" for value in record.get("series", []))
-            label = f"{car_name} {classes} {series}".strip()
+            label = f"{car_name} [{selected_class}] {series}".strip()
         else:
             label = f"{record.get('brand', '')} {record.get('model', record.get('name', ''))}".strip()
         print(f"{index}. {label}")
-    if kind in {"class", "series"}:
-        while True:
-            value = input("Seleziona voce: ").strip()
-            if value.isdigit() and 1 <= int(value) <= len(records):
-                return records[int(value) - 1]
-    new_option = len(records) + 1
-    print(f"{new_option}. Nuovo record")
-    while True:
-        value = input("Seleziona il numero dell'opzione: ").strip()
-        if value.isdigit() and 1 <= int(value) <= new_option:
-            break
-        console.print("Seleziona una delle opzioni numeriche mostrate.", style="red")
-    if int(value) <= len(records):
-        record = records[int(value) - 1]
+    print("0. Nuovo record")
+    value = ask_number("Seleziona il numero dell'opzione", len(records), allow_zero=True)
+    if value > 0:
+        record = records[value - 1]
         return record, ask_alias(filename, detected_text)
+
     if kind == "cars":
         brand = ask_required("Produttore: ")
         model = ask_required("Modello: ")
-        category = input("Categoria (GT3, GT4, CUP; separale con virgola se necessario): ").strip()
         series = input("Campionato/versione (WEC, ELMS, Universal; separali con virgola se necessario): ").strip()
         record = store_global.create(
             kind,
@@ -85,7 +86,7 @@ def ask_entity(kind: str, records: list[dict], filename: str, detected_text: str
             {
                 "brand": brand,
                 "model": model,
-                "class": [canonical_class(x) for x in category.split(",") if x.strip()] or ["Unknown"],
+                "class": [selected_class],
                 "series": [x.strip() for x in series.split(",") if x.strip()] or ["Universal"],
             },
         )
@@ -97,6 +98,16 @@ def ask_entity(kind: str, records: list[dict], filename: str, detected_text: str
         name = ask_required("Nome creatore: ")
         record = store_global.create(kind, name)
     return record, ask_alias(filename, detected_text)
+
+
+def ask_number(label: str, maximum: int, allow_zero: bool) -> int:
+    """Read a valid menu number, optionally allowing the fixed new-record 0."""
+    while True:
+        value = input(f"{label}: ").strip()
+        minimum = 0 if allow_zero else 1
+        if value.isdigit() and minimum <= int(value) <= maximum:
+            return int(value)
+        console.print("Seleziona una delle opzioni numeriche mostrate.", style="red")
 
 
 store_global: DatabaseStore
