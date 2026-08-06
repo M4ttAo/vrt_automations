@@ -15,8 +15,7 @@ from installer import Installer
 from logger import configure_logging
 from matcher import Matcher
 from parser import FilenameParser
-from utils import move_to_archive
-from utils import canonical_class
+from utils import canonical_class, move_to_archive, normalize
 
 GAMES = {"1": "LMU", "2": "ACC", "3": "ACC EVO", "4": "iRacing"}
 ARCHIVE_SUFFIXES = {".zip", ".rar", ".7z"}
@@ -51,7 +50,16 @@ def ask_entity(kind: str, records: list[dict], filename: str, detected_text: str
     console.print(f"\nFile in esame: [yellow]{filename}[/yellow]")
     print(f"\n{labels.get(kind, kind)} non riconosciuto.")
     if kind in {"class", "series"}:
-        return records[ask_number("Seleziona voce", len(records), allow_zero=False) - 1]
+        for index, record in enumerate(records, 1):
+            print(f"{index}. {record.get('name', '')}")
+        while True:
+            value = input("Seleziona voce: ").strip()
+            if value.isdigit() and 1 <= int(value) <= len(records):
+                return records[int(value) - 1]
+            selected = next((record for record in records if normalize(str(record.get("name", ""))) == normalize(value)), None)
+            if selected:
+                return selected
+            console.print("Seleziona una voce valida usando numero o nome.", style="red")
 
     selected_class = None
     if kind == "cars":
