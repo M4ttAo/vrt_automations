@@ -14,6 +14,7 @@ class Config:
     """Immutable settings used by the application."""
 
     base_dir: Path
+    database_dir: Path
     destination_root: Path
     archive_dir: Path
     temp_dir: Path
@@ -28,8 +29,15 @@ class Config:
         base = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
         load_dotenv(base / ".env")
         destination = Path(os.getenv("DESTINATION_ROOT", str(base / "destination"))).expanduser()
+        local_db = base / "db"
+        working_db = Path.cwd() / "db"
+        local_has_records = any((local_db / name).is_file() and (local_db / name).stat().st_size > 2 for name in ("cars.json", "tracks.json", "creators.json"))
+        working_has_records = any((working_db / name).is_file() and (working_db / name).stat().st_size > 2 for name in ("cars.json", "tracks.json", "creators.json"))
+        if working_has_records and not local_has_records:
+            local_db = working_db
         return cls(
             base_dir=base,
+            database_dir=local_db,
             destination_root=destination,
             archive_dir=base / "archive",
             temp_dir=base / "temp",

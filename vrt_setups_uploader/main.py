@@ -51,7 +51,13 @@ def ask_entity(kind: str, records: list[dict], filename: str, detected_text: str
     console.print(f"\nFile in esame: [yellow]{filename}[/yellow]")
     print(f"\n{labels.get(kind, kind)} non riconosciuto.")
     for index, record in enumerate(records, 1):
-        label = f"{record.get('brand', '')} {record.get('model', record.get('name', ''))}".strip()
+        if kind == "cars":
+            car_name = f"{record.get('brand', '')} {record.get('model', '')}".strip()
+            classes = ", ".join(f"[{value}]" for value in record.get("class", []))
+            series = ", ".join(f"[{value}]" for value in record.get("series", []))
+            label = f"{car_name} {classes} {series}".strip()
+        else:
+            label = f"{record.get('brand', '')} {record.get('model', record.get('name', ''))}".strip()
         print(f"{index}. {label}")
     if kind in {"class", "series"}:
         while True:
@@ -122,7 +128,7 @@ def main() -> int:
     config = Config.load()
     logger = configure_logging(config.logs_dir)
     config.temp_dir.mkdir(parents=True, exist_ok=True)
-    store_global = DatabaseStore(config.base_dir / "db")
+    store_global = DatabaseStore(config.database_dir)
     game = ask_game()
     archives = sorted(path for path in config.base_dir.iterdir() if path.suffix.lower() in ARCHIVE_SUFFIXES and path.is_file())
     console.print(f"[bold]Trovati {len(archives)} archivi[/bold] in {config.base_dir}.")

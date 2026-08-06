@@ -10,7 +10,10 @@ Organizza automaticamente gli archivi di setup per LMU, ACC, Assetto Corsa EVO
 4. Installare: `python -m pip install -r requirements.txt`.
 5. Copiare `.env.example` in `.env` e impostare `DESTINATION_ROOT`.
 
-Al primo avvio, se `db/*.json` non esistono, il programma tenta una richiesta
+Il database viene letto da `db/` accanto all'EXE. Se l'EXE viene avviato da una
+cartella che contiene `db/` ma non ha ancora un database accanto all'EXE, viene
+usato anche quel database locale della directory corrente. Non viene incluso
+nell'EXE. Al primo avvio, se `db/*.json` non esistono, il programma tenta una
 
 ## Utilizzo
 
