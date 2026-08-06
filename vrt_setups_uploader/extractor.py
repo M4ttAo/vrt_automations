@@ -39,11 +39,12 @@ class ArchiveExtractor:
                     handle.extractall(work)
             elif suffix == ".rar":
                 rar_tool = self._configure_rar_tool()
-                with rarfile.RarFile(archive) as handle:
-                    self._safe_rar(handle)
-                    if Path(rar_tool).name.lower() in {"7z", "7z.exe", "7za", "7za.exe", "7zr", "7zr.exe"}:
-                        self._extract_rar_with_7zip(rar_tool, archive, work)
-                    else:
+                tool_name = Path(rar_tool).name.lower()
+                if tool_name in {"7z", "7z.exe", "7za", "7za.exe", "7zr", "7zr.exe"}:
+                    self._extract_rar_with_7zip(rar_tool, archive, work)
+                else:
+                    with rarfile.RarFile(archive) as handle:
+                        self._safe_rar(handle)
                         handle.extractall(work)
             else:
                 raise ValueError(f"Formato non supportato: {archive.suffix}")
