@@ -19,6 +19,7 @@ class Config:
     temp_dir: Path
     logs_dir: Path
     dry_run: bool
+    supervisor_mode: bool
     match_threshold: int
 
     @classmethod
@@ -34,5 +35,6 @@ class Config:
             temp_dir=base / "temp",
             logs_dir=base / "logs",
             dry_run=os.getenv("DRY_RUN", "False").strip().lower() in {"1", "true", "yes", "on"},
+            supervisor_mode=os.getenv("SUPERVISOR_MODE", "False").strip().lower() in {"1", "true", "yes", "on"},
             match_threshold=int(os.getenv("MATCH_THRESHOLD", "72")),
         )

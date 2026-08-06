@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import shutil
+import subprocess
 import sys
 import tempfile
 import zipfile
@@ -37,10 +38,13 @@ class ArchiveExtractor:
                 with py7zr.SevenZipFile(archive, mode="r") as handle:
                     handle.extractall(work)
             elif suffix == ".rar":
-                self._configure_rar_tool()
+                rar_tool = self._configure_rar_tool()
                 with rarfile.RarFile(archive) as handle:
                     self._safe_rar(handle)
-                    handle.extractall(work)
+                    if Path(rar_tool).name.lower() in {"7z", "7z.exe", "7zr", "7zr.exe"}:
+                        self._extract_rar_with_7zip(rar_tool, archive, work)
+                    else:
+                        handle.extractall(work)
             else:
                 raise ValueError(f"Formato non supportato: {archive.suffix}")
             files = tuple(path for path in sorted(work.rglob("*")) if path.is_file())
@@ -57,17 +61,20 @@ class ArchiveExtractor:
 
     @staticmethod
     def _remove_wrapper_directory(work: Path, files: tuple[Path, ...]) -> Path:
-        """Ignore a single arbitrary top-level folder used as an archive wrapper."""
-        top_level = tuple(work.iterdir())
-        if len(top_level) == 1 and top_level[0].is_dir() and files:
-            return top_level[0]
-        return work
+        """Ignore consecutive single-folder wrappers around the actual files."""
+        logical_root = work
+        while files:
+            children = tuple(logical_root.iterdir())
+            if len(children) != 1 or not children[0].is_dir():
+                break
+            logical_root = children[0]
+        return logical_root
 
     @staticmethod
-    def _configure_rar_tool() -> None:
+    def _configure_rar_tool() -> str:
         """Select a RAR command-line backend available on the host."""
         if rarfile.UNRAR_TOOL and (Path(rarfile.UNRAR_TOOL).exists() or shutil.which(rarfile.UNRAR_TOOL)):
-            return
+            return rarfile.UNRAR_TOOL
         executable_names = ("unrar", "UnRAR.exe", "unar", "bsdtar", "7z", "7z.exe")
         application_dirs = [Path(sys.executable).resolve().parent]
         bundled_dir = getattr(sys, "_MEIPASS", None)
@@ -77,13 +84,26 @@ class ArchiveExtractor:
             resolved = shutil.which(executable)
             if resolved:
                 rarfile.UNRAR_TOOL = resolved
-                return
+                return resolved
             for application_dir in application_dirs:
                 local_tool = application_dir / executable
                 if local_tool.is_file():
                     rarfile.UNRAR_TOOL = str(local_tool)
-                    return
+                    return str(local_tool)
         raise RuntimeError("Per estrarre RAR installare UnRAR, WinRAR o 7-Zip e aggiungerlo al PATH")
+
+    @staticmethod
+    def _extract_rar_with_7zip(tool: str, archive: Path, destination: Path) -> None:
+        """Extract RAR through 7-Zip, which does not require rarfile's UnRAR API."""
+        result = subprocess.run(
+            [tool, "x", "-y", str(archive), f"-o{destination}"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode:
+            details = (result.stderr or result.stdout).strip()
+            raise RuntimeError(f"7-Zip non ha estratto il RAR: {details}")
 
     @staticmethod
     def _safe_zip(handle: zipfile.ZipFile) -> None:

@@ -26,12 +26,17 @@ cartella temporanea, copiati in:
 
 Infine l'archivio viene spostato in `archive/`. Log e errori sono in `logs/`.
 
-Se l'archivio contiene una sola cartella contenitore con un nome arbitrario,
-questa viene rimossa dal percorso di destinazione; le sottocartelle reali dei
-setup vengono invece mantenute.
+Se l'archivio contiene una o piu cartelle contenitore annidate, ciascuna con una
+sola cartella al suo interno, queste vengono attraversate fino ai file e rimosse
+dal percorso di destinazione; le sottocartelle reali dei setup vengono invece
+mantenute.
 
 Impostando `DRY_RUN=True` vengono mostrati solo gli abbinamenti e le destinazioni:
 non vengono estratti, copiati o spostati file.
+
+Impostando `SUPERVISOR_MODE=True`, prima di ogni archivio viene chiesto:
+`Sto copiando questo setup in questa cartella, procedo? (s/n)`. Con
+`SUPERVISOR_MODE=False` non viene mostrata questa conferma.
 
 ## Compilazione
 

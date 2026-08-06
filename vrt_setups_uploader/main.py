@@ -32,6 +32,18 @@ def ask_game() -> str:
         console.print("Scelta non valida.", style="red")
 
 
+def ask_confirmation(archive: Path, destination: Path) -> bool:
+    """Ask the supervisor to approve one archive installation."""
+    console.print(f"Sto copiando [yellow]{archive.name}[/yellow] in [cyan]{destination}[/cyan]. Procedo? (s/n)")
+    while True:
+        answer = input("s/n: ").strip().lower()
+        if answer in {"s", "si", "sì", "y", "yes"}:
+            return True
+        if answer in {"n", "no"}:
+            return False
+        console.print("Rispondi s oppure n.", style="red")
+
+
 def ask_entity(kind: str, records: list[dict], filename: str, detected_text: str) -> tuple[dict, str] | dict:
     """Display candidates and create a record when requested."""
     labels = {"cars": "Auto", "tracks": "Circuito", "creators": "Creatore", "class": "Categoria", "series": "Campionato/versione"}
@@ -122,7 +134,11 @@ def main() -> int:
         try:
             creator, car, track, category = parser.parse(archive)
             destination = installer.destination(config.destination_root, game, creator.record["name"], car.record, track.record)
-            console.print(f"[cyan]{archive.name}[/cyan] -> {destination} [{category}] (creator score {creator.score:.0f}, car {car.score:.0f}, track {track.score:.0f})")
+            if config.dry_run:
+                console.print(f"[cyan]{archive.name}[/cyan] -> {destination} [{category}] (creator score {creator.score:.0f}, car {car.score:.0f}, track {track.score:.0f})")
+            elif config.supervisor_mode and not ask_confirmation(archive, destination):
+                logger.warning("Archivio rifiutato dall'operatore: %s", archive.name)
+                continue
             if not config.dry_run:
                 extracted = extractor.extract(archive, config.temp_dir)
                 try:
