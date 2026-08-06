@@ -6,10 +6,3 @@ __pycache__/
 # Temporary extraction and test folders.
 .tmp/
 .test-drive/
-7zr.exe
-UnRAR.exe
-7za.exe
-7za.dll
-7zxa.dll
-7z-extra.7z
-7z-extra/

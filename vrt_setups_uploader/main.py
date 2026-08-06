@@ -157,6 +157,11 @@ def main() -> int:
     extractor, installer = ArchiveExtractor(), Installer()
     for archive in archives:
         started = time.perf_counter()
+        if archive.suffix.lower() == ".rar":
+            message = f"File RAR non gestiti: trasformarli in un file ZIP o copiarli a mano. Archivio: {archive.name}"
+            console.print(message, style="yellow")
+            logger.warning(message)
+            continue
         try:
             creator, car, track, category = parser.parse(archive)
             destination = installer.destination(config.destination_root, game, creator.record["name"], car.record, track.record)

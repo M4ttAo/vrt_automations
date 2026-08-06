@@ -4,7 +4,7 @@ Organizza automaticamente gli archivi di setup per LMU, ACC, Assetto Corsa EVO
 
 ## Installazione
 
-1. Installare Python 3.13 (Windows). `build.bat` include automaticamente `UnRAR.exe` ufficiale nell'EXE per l'estrazione RAR; 7-Zip/WinRAR nel PATH restano supportati come fallback.
+1. Installare Python 3.13 (Windows). I file RAR non sono gestiti: trasformarli in ZIP o copiarli manualmente.
 2. Creare l'ambiente: `py -3.13 -m venv .venv`.
 3. Attivarlo: `.venv\Scripts\activate`.
 4. Installare: `python -m pip install -r requirements.txt`.
@@ -17,7 +17,7 @@ nell'EXE. Al primo avvio, se `db/*.json` non esistono, il programma tenta una
 
 ## Utilizzo
 
-Mettere `*.zip`, `*.rar` o `*.7z` nella stessa cartella di `main.py` (o dell'EXE),
+Mettere `*.zip` o `*.7z` nella stessa cartella di `main.py` (o dell'EXE),
 avviare `python main.py` e selezionare il simulatore. Per ogni archivio il nome
 viene analizzato; gli elementi sconosciuti vengono richiesti a video. La voce
 `Nuovo record` e sempre selezionabile tramite numero e richiede tutti i campi:
