@@ -24,6 +24,9 @@ cartella temporanea, copiati in:
 
 `DESTINATION_ROOT/<Game>/<Creator>/<Car>/<Track>`
 
+Per le auto appartenenti a WEC o ELMS viene aggiunto il campionato tra auto e
+circuito: `DESTINATION_ROOT/<Game>/<Creator>/<Car>/<WEC|ELMS>/<Track>`.
+
 Infine l'archivio viene spostato in `archive/`. Log e errori sono in `logs/`.
 
 Se l'archivio contiene una o piu cartelle contenitore annidate, ciascuna con una
@@ -66,3 +69,4 @@ database rimuovono automaticamente ID, record e alias duplicati.
 
 Se un'auto ha più categorie e il nome non contiene una categoria, il programma
 chiede sempre di scegliere tra GT3, GT4, CUP o le categorie registrate.
+Le classi `P2` e `LMP2` vengono normalizzate a `LMP2`; `P3` e `LMP3` a `LMP3`.

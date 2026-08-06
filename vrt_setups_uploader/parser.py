@@ -6,7 +6,7 @@ from pathlib import Path
 
 from database import DatabaseStore
 from matcher import Match, Matcher
-from utils import normalize
+from utils import canonical_class, normalize
 
 
 class FilenameParser:
@@ -37,10 +37,13 @@ class FilenameParser:
             selected_record = next((record for record in same_car if mentioned_series[0] in record.get("series", [])), car.record)
             car = Match(selected_record, car.alias, car.score)
         categories = car.record.get("class", ["Unknown"])
-        mentioned = [c for c in categories if re.search(rf"\b{re.escape(normalize(c))}\b", stem)]
+        mentioned = [
+            c for c in categories
+            if any(re.search(rf"\b{re.escape(normalize(alias))}\b", stem) for alias in (c, {"LMP2": "P2", "LMP3": "P3"}.get(c, c)))
+        ]
         if len(categories) > 1 and not mentioned:
             selected = self.prompt("class", [{"name": c} for c in categories], archive.name, stem)
-            category = selected["name"]
+            category = canonical_class(selected["name"])
         else:
-            category = mentioned[0] if mentioned else categories[0]
+            category = canonical_class(mentioned[0] if mentioned else categories[0])
         return creator, car, track, category

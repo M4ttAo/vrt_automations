@@ -16,6 +16,7 @@ from logger import configure_logging
 from matcher import Matcher
 from parser import FilenameParser
 from utils import move_to_archive
+from utils import canonical_class
 
 GAMES = {"1": "LMU", "2": "ACC", "3": "ACC EVO", "4": "iRacing"}
 ARCHIVE_SUFFIXES = {".zip", ".rar", ".7z"}
@@ -78,7 +79,7 @@ def ask_entity(kind: str, records: list[dict], filename: str, detected_text: str
             {
                 "brand": brand,
                 "model": model,
-                "class": [x.strip() for x in category.split(",") if x.strip()] or ["Unknown"],
+                "class": [canonical_class(x) for x in category.split(",") if x.strip()] or ["Unknown"],
                 "series": [x.strip() for x in series.split(",") if x.strip()] or ["Universal"],
             },
         )

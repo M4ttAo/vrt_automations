@@ -9,7 +9,7 @@ import orjson
 import requests
 from bs4 import BeautifulSoup
 
-from utils import normalize
+from utils import canonical_class, normalize
 
 SEEDS: dict[str, list[dict[str, Any]]] = {
     "cars": [
@@ -49,7 +49,8 @@ class DatabaseStore:
         for kind in SEEDS:
             path = directory / f"{kind}.json"
             self.records[kind] = self._load_or_bootstrap(kind, path)
-            if not path.exists() or path.read_bytes().strip() in {b"", b"[]"}:
+            raw_database = path.read_bytes() if path.exists() else b""
+            if not path.exists() or raw_database.strip() in {b"", b"[]"} or (kind == "cars" and (b'"P2"' in raw_database or b'"P3"' in raw_database)):
                 self._write(kind)
 
     def _load_or_bootstrap(self, kind: str, path: Path) -> list[dict[str, Any]]:
@@ -91,6 +92,7 @@ class DatabaseStore:
             if kind == "cars":
                 item.setdefault("brand", "Unknown"); item.setdefault("model", "Unknown"); item.setdefault("class", ["Unknown"])
                 item["class"] = [item["class"]] if isinstance(item["class"], str) else list(item["class"])
+                item["class"] = list(dict.fromkeys(canonical_class(str(value)) for value in item["class"]))
                 item.setdefault("series", ["Universal"])
                 item["series"] = [item["series"]] if isinstance(item["series"], str) else list(item["series"])
                 canonical = f"{item['brand']} {item['model']}"
@@ -134,12 +136,18 @@ class DatabaseStore:
         if kind == "cars":
             brand = (extra or {}).get("brand") or name.partition(" ")[0]
             model = (extra or {}).get("model") or name.partition(" ")[2] or brand
+            raw_classes = (extra or {}).get("class", ["Unknown"])
+            raw_series = (extra or {}).get("series", ["Universal"])
+            if isinstance(raw_classes, str):
+                raw_classes = [raw_classes]
+            if isinstance(raw_series, str):
+                raw_series = [raw_series]
             record = {
                 "id": record["id"],
                 "brand": brand,
                 "model": model,
-                "class": (extra or {}).get("class", ["Unknown"]),
-                "series": (extra or {}).get("series", ["Universal"]),
+                "class": [canonical_class(str(value)) for value in raw_classes],
+                "series": list(raw_series),
                 "aliases": [name],
             }
         elif kind == "tracks":

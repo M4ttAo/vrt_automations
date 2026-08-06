@@ -7,6 +7,12 @@ import unicodedata
 from pathlib import Path
 
 
+def canonical_class(value: str) -> str:
+    """Return the canonical class name used by the shared database."""
+    normalized = normalize(value)
+    return {"p2": "LMP2", "lmp2": "LMP2", "p3": "LMP3", "lmp3": "LMP3"}.get(normalized, value.strip())
+
+
 def normalize(value: str) -> str:
     """Normalize punctuation, accents and whitespace for matching."""
     ascii_value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")

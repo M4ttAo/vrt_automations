@@ -38,4 +38,8 @@ class Installer:
         """Build the destination path using user-facing canonical names."""
         car_name = f"{car.get('brand', '')} {car.get('model', '')}".strip()
         track_name = re.sub(r"\s*\[[^]]+\]\s*$", "", str(track.get("name", "Unknown"))).strip()
-        return root / slug(game) / slug(creator) / slug(car_name) / slug(track_name)
+        destination = root / slug(game) / slug(creator) / slug(car_name)
+        series = {str(value).strip().upper() for value in car.get("series", [])}
+        if series & {"WEC", "ELMS"}:
+            destination /= slug(next(value for value in car["series"] if str(value).strip().upper() in {"WEC", "ELMS"}))
+        return destination / slug(track_name)
