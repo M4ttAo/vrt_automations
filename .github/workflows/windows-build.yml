@@ -68,7 +68,12 @@ jobs:
         env:
           BUILD_VERSION: ${{ steps.version.outputs.version }}
         run: |
-          python -m PyInstaller --onefile --clean --name "vrt_setup_uploader_$env:BUILD_VERSION" main.py
+          Invoke-WebRequest -Uri "https://www.7-zip.org/a/7zr.exe" -OutFile 7zr.exe
+          Invoke-WebRequest -Uri "https://github.com/ip7z/7zip/releases/download/26.02/7z2602-extra.7z" -OutFile 7z-extra.7z
+          .\7zr.exe x 7z-extra.7z -o7z-extra -y
+          Copy-Item 7z-extra\7z.exe 7z.exe
+          Copy-Item 7z-extra\7z.dll 7z.dll
+          python -m PyInstaller --onefile --clean --name "vrt_setup_uploader_$env:BUILD_VERSION" --add-binary "7z.exe;." --add-binary "7z.dll;." main.py
 
       - name: Upload executable artifact
         if: steps.version.outputs.should_build == 'true'
