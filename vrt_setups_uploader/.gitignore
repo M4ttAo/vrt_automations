@@ -7,3 +7,7 @@ __pycache__/
 .tmp/
 .test-drive/
 7zr.exe
+7z.exe
+7z.dll
+7z-extra.7z
+7z-extra/
