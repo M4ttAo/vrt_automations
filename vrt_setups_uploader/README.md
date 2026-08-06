@@ -13,7 +13,9 @@ Organizza automaticamente gli archivi di setup per LMU, ACC, Assetto Corsa EVO
 Il database viene letto da `db/` accanto all'EXE. Se l'EXE viene avviato da una
 cartella che contiene `db/` ma non ha ancora un database accanto all'EXE, viene
 usato anche quel database locale della directory corrente. Non viene incluso
-nell'EXE. Al primo avvio, se `db/*.json` non esistono, il programma tenta una
+nell'EXE. Al primo avvio, se `db/*.json` non esistono, il programma crea i file
+locali usando il vocabolario seed incorporato; i database esistenti non vengono
+rigenerati.
 
 ## Utilizzo
 
@@ -60,7 +62,7 @@ l'EXE insieme ai database gia inizializzati, includere `db` accanto all'EXE;
 - `config.py`: configurazione `.env`.
 - `database.py`: bootstrap, deduplicazione e apprendimento.
 - `parser.py`, `matcher.py`: parsing e RapidFuzz.
-- `extractor.py`: estrazione sicura ZIP/RAR/7Z.
+- `extractor.py`: estrazione sicura ZIP/7Z.
 - `installer.py`: copia e gerarchia di destinazione.
 - `logger.py`, `utils.py`: logging e utility.
 - `db/cars.json`, `db/tracks.json`, `db/creators.json`: database condivisi.

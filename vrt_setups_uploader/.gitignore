@@ -6,3 +6,9 @@ __pycache__/
 # Temporary extraction and test folders.
 .tmp/
 .test-drive/
+
+# User-provided archives and runtime logs.
+*.zip
+*.rar
+*.7z
+logs/*.log

@@ -1,8 +1,6 @@
 """Command-line entry point for vrt_setup_uploader."""
 from __future__ import annotations
 
-import logging
-import shutil
 import time
 from pathlib import Path
 
@@ -44,7 +42,7 @@ def ask_confirmation(archive: Path, destination: Path) -> bool:
         console.print("Rispondi s oppure n.", style="red")
 
 
-def ask_entity(kind: str, records: list[dict], filename: str, detected_text: str) -> tuple[dict, str] | dict:
+def ask_entity(kind: str, records: list[dict], filename: str, detected_text: str, store: DatabaseStore) -> tuple[dict, str] | dict:
     """Display candidates and create a record when requested."""
     labels = {"cars": "Auto", "tracks": "Circuito", "creators": "Creatore", "class": "Categoria", "series": "Campionato/versione"}
     console.print(f"\nFile in esame: [yellow]{filename}[/yellow]")
@@ -88,7 +86,7 @@ def ask_entity(kind: str, records: list[dict], filename: str, detected_text: str
         brand = ask_required("Produttore: ")
         model = ask_required("Modello: ")
         series = input("Campionato/versione (WEC, ELMS, Universal; separali con virgola se necessario): ").strip()
-        record = store_global.create(
+        record = store.create(
             kind,
             f"{brand} {model}",
             {
@@ -101,10 +99,10 @@ def ask_entity(kind: str, records: list[dict], filename: str, detected_text: str
     elif kind == "tracks":
         name = ask_required("Nome circuito: ")
         country = ask_required("Nazione: ")
-        record = store_global.create(kind, name, {"country": country})
+        record = store.create(kind, name, {"country": country})
     else:
         name = ask_required("Nome creatore: ")
-        record = store_global.create(kind, name)
+        record = store.create(kind, name)
     return record, ask_alias(filename, detected_text)
 
 
@@ -116,9 +114,6 @@ def ask_number(label: str, maximum: int, allow_zero: bool) -> int:
         if value.isdigit() and minimum <= int(value) <= maximum:
             return int(value)
         console.print("Seleziona una delle opzioni numeriche mostrate.", style="red")
-
-
-store_global: DatabaseStore
 
 
 def ask_required(label: str) -> str:
@@ -141,19 +136,27 @@ def ask_alias(filename: str, detected_text: str) -> str:
         console.print("L'alias non puo essere vuoto e non deve contenere tutto il filename.", style="red")
 
 
+def make_entity_prompt(store: DatabaseStore):
+    """Bind the database store to the parser's interactive prompt."""
+    def prompt(kind: str, records: list[dict], filename: str, detected_text: str):
+        return ask_entity(kind, records, filename, detected_text, store)
+
+    return prompt
+
+
 def main() -> int:
     """Run the complete batch with per-archive fault isolation."""
     global store_global
     config = Config.load()
     logger = configure_logging(config.logs_dir)
     config.temp_dir.mkdir(parents=True, exist_ok=True)
-    store_global = DatabaseStore(config.database_dir)
+    store = DatabaseStore(config.database_dir)
     game = ask_game()
     archives = sorted(path for path in config.base_dir.iterdir() if path.suffix.lower() in ARCHIVE_SUFFIXES and path.is_file())
     console.print(f"[bold]Trovati {len(archives)} archivi[/bold] in {config.base_dir}.")
     if not archives:
         return 0
-    parser = FilenameParser(Matcher(store_global, config.match_threshold), store_global, ask_entity)
+    parser = FilenameParser(Matcher(store, config.match_threshold), store, make_entity_prompt(store))
     extractor, installer = ArchiveExtractor(), Installer()
     for archive in archives:
         started = time.perf_counter()

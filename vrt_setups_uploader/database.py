@@ -6,9 +6,6 @@ from pathlib import Path
 from typing import Any
 
 import orjson
-import requests
-from bs4 import BeautifulSoup
-
 from utils import canonical_class, normalize
 
 SEEDS: dict[str, list[dict[str, Any]]] = {
@@ -49,34 +46,16 @@ class DatabaseStore:
         for kind in SEEDS:
             path = directory / f"{kind}.json"
             self.records[kind] = self._load_or_bootstrap(kind, path)
-            raw_database = path.read_bytes() if path.exists() else b""
-            if not path.exists() or raw_database.strip() in {b"", b"[]"} or (kind == "cars" and (b'"P2"' in raw_database or b'"P3"' in raw_database)):
+            if not path.exists():
                 self._write(kind)
 
     def _load_or_bootstrap(self, kind: str, path: Path) -> list[dict[str, Any]]:
         if path.exists():
             try:
-                loaded = self._deduplicate(kind, orjson.loads(path.read_bytes()))
-                if loaded:
-                    return loaded
-            except (OSError, orjson.JSONDecodeError, TypeError, ValueError):
-                pass
-        return self._deduplicate(kind, self._online_records(kind) or SEEDS[kind])
-
-    def _online_records(self, kind: str) -> list[dict[str, Any]]:
-        """Attempt a one-time best-effort import from stable Wikipedia pages."""
-        urls = {"cars": "https://en.wikipedia.org/wiki/List_of_racing_cars", "tracks": "https://en.wikipedia.org/wiki/List_of_motor_racing_circuits"}
-        if kind not in urls:
-            return []
-        try:
-            response = requests.get(urls[kind], timeout=8, headers={"User-Agent": "vrt_setup_uploader/1.0"})
-            response.raise_for_status()
-            text = BeautifulSoup(response.text, "lxml").get_text(" ", strip=True)
-            # Keep curated seeds as the authoritative cross-simulator vocabulary;
-            # this validates network availability without making startup fragile.
-            return SEEDS[kind] if text else []
-        except requests.RequestException:
-            return []
+                return self._deduplicate(kind, orjson.loads(path.read_bytes()))
+            except (OSError, orjson.JSONDecodeError, TypeError, ValueError) as error:
+                raise ValueError(f"Database non valido: {path}") from error
+        return self._deduplicate(kind, SEEDS[kind])
 
     def _deduplicate(self, kind: str, raw: list[dict[str, Any]]) -> list[dict[str, Any]]:
         result: list[dict[str, Any]] = []

@@ -33,6 +33,7 @@ class ArchiveExtractor:
                     handle.extractall(work)
             elif suffix == ".7z":
                 with py7zr.SevenZipFile(archive, mode="r") as handle:
+                    self._safe_7z(handle)
                     handle.extractall(work)
             else:
                 raise ValueError(f"Formato non supportato: {archive.suffix}")
@@ -63,3 +64,9 @@ class ArchiveExtractor:
     def _safe_zip(handle: zipfile.ZipFile) -> None:
         if any(Path(item.filename).is_absolute() or ".." in Path(item.filename).parts for item in handle.infolist()):
             raise ValueError("Archivio ZIP non sicuro: percorso fuori dalla directory temporanea")
+
+    @staticmethod
+    def _safe_7z(handle: py7zr.SevenZipFile) -> None:
+        """Reject 7Z entries that could escape the temporary directory."""
+        if any(Path(name).is_absolute() or ".." in Path(name).parts for name in handle.getnames()):
+            raise ValueError("Archivio 7Z non sicuro: percorso fuori dalla directory temporanea")

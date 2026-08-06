@@ -13,7 +13,7 @@ from utils import slug
 class Installer:
     """Copy setup files into the canonical simulator hierarchy."""
 
-    def install(self, files: Iterable[Path], destination: Path, dry_run: bool = False, extraction_root: Path | None = None) -> int:
+    def install(self, files: Iterable[Path], destination: Path, extraction_root: Path | None = None) -> int:
         """Copy files preserving paths relative to the extraction root."""
         file_list = list(files)
         if not file_list:
@@ -27,9 +27,8 @@ class Installer:
         for source in file_list:
             relative = source.relative_to(common)
             target = destination / relative
-            if not dry_run:
-                target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(source, target)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
             count += 1
         return count
 
