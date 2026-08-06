@@ -4,7 +4,7 @@ Organizza automaticamente gli archivi di setup per LMU, ACC, Assetto Corsa EVO
 
 ## Installazione
 
-1. Installare Python 3.13 (Windows). `build.bat` include automaticamente `7zr.exe` nell'EXE per l'estrazione RAR; WinRAR/UnRAR/7-Zip nel PATH restano supportati come fallback.
+1. Installare Python 3.13 (Windows). `build.bat` include automaticamente il motore completo `7za.exe` e le sue DLL nell'EXE per l'estrazione RAR; WinRAR/UnRAR/7-Zip nel PATH restano supportati come fallback.
 2. Creare l'ambiente: `py -3.13 -m venv .venv`.
 3. Attivarlo: `.venv\Scripts\activate`.
 4. Installare: `python -m pip install -r requirements.txt`.

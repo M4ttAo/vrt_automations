@@ -41,7 +41,7 @@ class ArchiveExtractor:
                 rar_tool = self._configure_rar_tool()
                 with rarfile.RarFile(archive) as handle:
                     self._safe_rar(handle)
-                    if Path(rar_tool).name.lower() in {"7z", "7z.exe", "7zr", "7zr.exe"}:
+                    if Path(rar_tool).name.lower() in {"7z", "7z.exe", "7za", "7za.exe", "7zr", "7zr.exe"}:
                         self._extract_rar_with_7zip(rar_tool, archive, work)
                     else:
                         handle.extractall(work)
@@ -75,7 +75,7 @@ class ArchiveExtractor:
         """Select a RAR command-line backend available on the host."""
         if rarfile.UNRAR_TOOL and (Path(rarfile.UNRAR_TOOL).exists() or shutil.which(rarfile.UNRAR_TOOL)):
             return rarfile.UNRAR_TOOL
-        executable_names = ("unrar", "UnRAR.exe", "unar", "bsdtar", "7z", "7z.exe")
+        executable_names = ("unrar", "UnRAR.exe", "unar", "bsdtar", "7z", "7z.exe", "7za", "7za.exe")
         application_dirs = [Path(sys.executable).resolve().parent]
         bundled_dir = getattr(sys, "_MEIPASS", None)
         if bundled_dir:
