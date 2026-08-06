@@ -70,11 +70,12 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "https://www.7-zip.org/a/7zr.exe" -OutFile 7zr.exe
           Invoke-WebRequest -Uri "https://github.com/ip7z/7zip/releases/download/26.02/7z2602-extra.7z" -OutFile 7z-extra.7z
+          Invoke-WebRequest -Uri "https://www.rarlab.com/rar/unrarw64.exe" -OutFile UnRAR.exe
           .\7zr.exe x 7z-extra.7z -o7z-extra -y
           Copy-Item 7z-extra\x64\7za.exe 7za.exe
           Copy-Item 7z-extra\x64\7za.dll 7za.dll
           Copy-Item 7z-extra\x64\7zxa.dll 7zxa.dll
-          python -m PyInstaller --onefile --clean --name "vrt_setup_uploader_$env:BUILD_VERSION" --add-binary "7za.exe;." --add-binary "7za.dll;." --add-binary "7zxa.dll;." main.py
+          python -m PyInstaller --onefile --clean --name "vrt_setup_uploader_$env:BUILD_VERSION" --add-binary "UnRAR.exe;." --add-binary "7za.exe;." --add-binary "7za.dll;." --add-binary "7zxa.dll;." main.py
 
       - name: Upload executable artifact
         if: steps.version.outputs.should_build == 'true'
