@@ -189,4 +189,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    exit_code = main()
+    input("Premi invio per terminare...")
+    raise SystemExit(exit_code)

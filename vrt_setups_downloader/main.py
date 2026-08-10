@@ -59,14 +59,16 @@ def choose_series(car: dict, query: str) -> str | None:
     series = list(dict.fromkeys(str(value) for value in car.get("series", []) if str(value).strip()))
     mentioned = [value for value in series if normalize(value) in normalize(query)]
     if len(series) <= 1 or mentioned:
-        return mentioned[0] if mentioned else (series[0] if series else None)
+        selected = mentioned[0] if mentioned else (series[0] if series else None)
+        return selected if selected and normalize(selected) in {"wec", "elms"} else None
     console.print("\nCampionato/versione:")
     for index, value in enumerate(series, 1):
         console.print(f"{index}. {value}")
     while True:
         choice = input("Seleziona campionato: ").strip()
         if choice.isdigit() and 1 <= int(choice) <= len(series):
-            return series[int(choice) - 1]
+            selected = series[int(choice) - 1]
+            return selected if normalize(selected) in {"wec", "elms"} else None
         console.print("Selezione non valida.", style="red")
 
 
@@ -150,6 +152,9 @@ def main() -> int:
                 console.print(f"{index}. {database.car_label(car)}")
             cars = [cars[choose_numbered_index(len(cars)) - 1]]
         else:
+            console.print("\nElenco auto:")
+            for index, car in enumerate(cars, 1):
+                console.print(f"{index}. {database.car_label(car)}")
             cars = [cars[choose_numbered_index(len(cars)) - 1]]
         car = cars[0]
         series = choose_series(car, query)
