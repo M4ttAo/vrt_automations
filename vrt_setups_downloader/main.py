@@ -42,11 +42,20 @@ def choose_creators(options: list[Path]) -> tuple[list[Path], bool]:
         console.print("Selezione non valida.", style="red")
 
 
-def choose_track(database: DatabaseStore) -> dict | None:
-    """Resolve a circuit alias or request all circuits."""
-    query = input("Circuito (invio per tutti): ").strip()
+def choose_track(database: DatabaseStore) -> dict:
+    """Resolve a circuit alias or show the numbered circuit list."""
+    query = input("Circuito (invio per elenco): ").strip()
     if not query:
-        return None
+        tracks = database.records["tracks"]
+        console.print("\nCircuiti disponibili:")
+        for index, track in enumerate(tracks, 1):
+            country = f" ({track.get('country', '')})" if track.get("country") else ""
+            console.print(f"{index}. {track.get('name', 'Unknown')}{country}")
+        while True:
+            value = input("Seleziona circuito: ").strip()
+            if value.isdigit() and 1 <= int(value) <= len(tracks):
+                return tracks[int(value) - 1]
+            console.print("Selezione non valida.", style="red")
     track = database.find_track(query)
     if track:
         return track
@@ -163,7 +172,7 @@ def main() -> int:
             console.print(f"La folder per il circuito '{track['name']}' non esiste.", style="yellow")
             return 1
         files = search.files(roots, track)
-        selected = choose_files(files, all_creators, f"gioco={games[0].name}, creator={'tutti' if all_creators else creators[0].name}, circuito={'tutti' if track is None else track['name']}, auto={database.car_label(car)}")
+        selected = choose_files(files, all_creators, f"gioco={games[0].name}, creator={'tutti' if all_creators else creators[0].name}, circuito={track['name']}, auto={database.car_label(car)}")
         copied = copy_to_current([item.path for item in selected])
         console.print(f"Scaricati {len(copied)} file nella cartella corrente: {Path.cwd()}")
         return 0

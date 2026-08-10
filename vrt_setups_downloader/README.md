@@ -27,7 +27,7 @@ progetto `vrt_setups_uploader/db` oppure nel `db/` della directory corrente.
 2. Avviare `python main.py` oppure `dist\vrt_setups_downloader.exe`.
 3. Selezionare gioco e creator.
 4. Premere Invio sui creator per selezionarli tutti.
-5. Inserire un alias circuito, oppure Invio per tutti i circuiti.
+5. Inserire un alias circuito, oppure premere Invio per scegliere dall'elenco numerato dei circuiti.
 6. Inserire un alias auto, oppure Invio per l'elenco completo.
 7. Se necessario selezionare WEC/ELMS.
 8. Selezionare i file con `3`, `3,7,10` oppure `1-5`.

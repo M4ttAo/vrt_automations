@@ -48,12 +48,12 @@ class SetupSearch:
                 found.append((car_dir, creator.name))
         return found
 
-    def files(self, roots: list[tuple[Path, str]], track: dict | None) -> list[SetupFile]:
-        """Collect files under selected roots, optionally filtering by track."""
+    def files(self, roots: list[tuple[Path, str]], track: dict) -> list[SetupFile]:
+        """Collect files under selected roots for the selected track."""
         results: list[SetupFile] = []
-        track_name = normalize(track.get("name", "")) if track else None
+        track_name = normalize(track.get("name", ""))
         for root, creator in roots:
-            track_dirs = [child for child in root.iterdir() if child.is_dir() and (not track_name or normalize(child.name) == track_name)]
+            track_dirs = [child for child in root.iterdir() if child.is_dir() and normalize(child.name) == track_name]
             for track_dir in track_dirs:
                 for path in sorted(child for child in track_dir.rglob("*") if child.is_file()):
                     results.append(SetupFile(path, creator, datetime.fromtimestamp(path.stat().st_mtime)))
