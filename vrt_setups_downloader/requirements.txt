@@ -1,0 +1,5 @@
+orjson>=3.10
+py7zr>=0.22
+python-dotenv>=1.0
+rich>=13.7
+pyinstaller>=6.10

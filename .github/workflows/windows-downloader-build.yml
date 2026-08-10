@@ -1,0 +1,94 @@
+name: Windows Downloader Build
+
+on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "vrt_setups_downloader/**"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository and tags
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read build version from commit message
+        id: version
+        shell: pwsh
+        run: |
+          $message = git log -1 --pretty=%B
+          $match = [regex]::Match($message, '(?i)\[build\s+(V\d+\.\d+)\]')
+          if (-not $match.Success) {
+            "should_build=false" >> $env:GITHUB_OUTPUT
+            "No build marker found in the commit message."
+            exit 0
+          }
+
+          $baseVersion = $match.Groups[1].Value.ToUpperInvariant()
+          $tagPrefix = 'vrt_setup_downloader-'
+          $basePattern = '^' + [regex]::Escape($tagPrefix + $baseVersion) + '\.(\d+)$'
+          $lastNumber = 0
+          foreach ($tag in (git tag --list)) {
+            $tagMatch = [regex]::Match($tag, $basePattern)
+            if ($tagMatch.Success) {
+              $number = [int]$tagMatch.Groups[1].Value
+              if ($number -gt $lastNumber) { $lastNumber = $number }
+            }
+          }
+
+          $version = "$baseVersion.$($lastNumber + 1)"
+          "should_build=true" >> $env:GITHUB_OUTPUT
+          "base_version=$baseVersion" >> $env:GITHUB_OUTPUT
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "Build version: $version"
+
+      - name: Set up Python 3.13
+        if: steps.version.outputs.should_build == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        if: steps.version.outputs.should_build == 'true'
+        working-directory: vrt_setups_downloader
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Build executable
+        if: steps.version.outputs.should_build == 'true'
+        working-directory: vrt_setups_downloader
+        shell: pwsh
+        env:
+          BUILD_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          python -m PyInstaller --onefile --clean --name "vrt_setups_downloader_$env:BUILD_VERSION" main.py
+
+      - name: Upload executable artifact
+        if: steps.version.outputs.should_build == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vrt_setups_downloader-${{ steps.version.outputs.version }}
+          path: vrt_setups_downloader/dist/vrt_setups_downloader_${{ steps.version.outputs.version }}.exe
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Create GitHub release and attach executable
+        if: steps.version.outputs.should_build == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release create "vrt_setup_downloader-$env:BUILD_VERSION" `
+            "vrt_setups_downloader/dist/vrt_setups_downloader_$env:BUILD_VERSION.exe" `
+            --target "${{ github.sha }}" `
+            --title "vrt_setups_downloader $env:BUILD_VERSION" `
+            --generate-notes
