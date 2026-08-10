@@ -10,7 +10,7 @@ from rich.table import Table
 from config import Config
 from database import DatabaseStore
 from search import SetupFile, SetupSearch
-from utils import copy_to_current, find_child, normalize
+from utils import copy_to_current, normalize
 
 console = Console()
 
@@ -42,25 +42,30 @@ def choose_creators(options: list[Path]) -> tuple[list[Path], bool]:
         console.print("Selezione non valida.", style="red")
 
 
-def choose_track(database: DatabaseStore) -> dict:
-    """Resolve a circuit alias or show the numbered circuit list."""
+def choose_track(search: SetupSearch, database: DatabaseStore, creators: list[Path]) -> dict:
+    """Resolve a circuit alias against folders belonging to selected creators."""
+    available = search.available_tracks(creators)
     query = input("Circuito (invio per elenco): ").strip()
     if not query:
-        tracks = database.records["tracks"]
+        tracks = available
         console.print("\nCircuiti disponibili:")
-        for index, track in enumerate(tracks, 1):
-            country = f" ({track.get('country', '')})" if track.get("country") else ""
-            console.print(f"{index}. {track.get('name', 'Unknown')}{country}")
+        for index, name in enumerate(tracks, 1):
+            console.print(f"{index}. {name}")
         while True:
             value = input("Seleziona circuito: ").strip()
             if value.isdigit() and 1 <= int(value) <= len(tracks):
-                return tracks[int(value) - 1]
+                folder_name = tracks[int(value) - 1]
+                record = database.find_track(folder_name) or {"name": folder_name, "aliases": [folder_name]}
+                return {**record, "_folder_name": folder_name}
             console.print("Selezione non valida.", style="red")
     track = database.find_track(query)
     if track:
-        return track
+        track_names = [track.get("name", ""), *track.get("aliases", [])]
+        folder_name = next((name for name in available if any(normalize(name) == normalize(alias) for alias in track_names)), None)
+        if folder_name:
+            return {**track, "_folder_name": folder_name}
     console.print(f"La folder per il circuito '{query}' non esiste.", style="yellow")
-    return choose_track(database)
+    return choose_track(search, database, creators)
 
 
 def choose_series(car: dict, query: str) -> str | None:
@@ -149,9 +154,10 @@ def main() -> int:
             console.print(f"Nessun creator trovato in {games[0]}.", style="red")
             return 1
         creators, all_creators = choose_creators(available_creators)
-        track = choose_track(database)
+        track = choose_track(search, database, creators)
         query = input("Auto (invio per elenco): ").strip()
-        cars = database.records["cars"] if not query else database.find_cars(query)
+        available_cars = search.available_cars(creators, track["_folder_name"])
+        cars = available_cars if not query else [car for car in database.find_cars(query) if car in available_cars]
         if not cars:
             console.print("Nessuna auto corrisponde alla ricerca.", style="yellow")
             return 1
@@ -168,9 +174,6 @@ def main() -> int:
         car = cars[0]
         series = choose_series(car, query)
         roots = search.car_roots(creators, car, series)
-        if track and not any(find_child(root, track["name"]) for root, _ in roots):
-            console.print(f"La folder per il circuito '{track['name']}' non esiste.", style="yellow")
-            return 1
         files = search.files(roots, track)
         selected = choose_files(files, all_creators, f"gioco={games[0].name}, creator={'tutti' if all_creators else creators[0].name}, circuito={track['name']}, auto={database.car_label(car)}")
         copied = copy_to_current([item.path for item in selected])
@@ -191,4 +194,6 @@ def choose_numbered_index(maximum: int) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    exit_code = main()
+    input("Premi invio per terminare...")
+    raise SystemExit(exit_code)

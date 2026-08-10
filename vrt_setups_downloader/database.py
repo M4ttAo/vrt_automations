@@ -32,7 +32,7 @@ class DatabaseStore:
         """Find a circuit whose canonical name or alias contains the query."""
         normalized = normalize(query)
         return next(
-            (record for record in self.records["tracks"] if any(normalized == normalize(alias) for alias in [record.get("name", ""), *record.get("aliases", [])])),
+            (record for record in self.records["tracks"] if any(normalized in normalize(str(alias)) for alias in [record.get("name", ""), *record.get("aliases", [])])),
             None,
         )
 

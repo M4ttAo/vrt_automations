@@ -48,10 +48,44 @@ class SetupSearch:
                 found.append((car_dir, creator.name))
         return found
 
+    def available_tracks(self, creators: list[Path]) -> list[str]:
+        """Return distinct track folder names under the selected creators."""
+        names: set[str] = set()
+        for creator in creators:
+            for car_dir in (path for path in creator.iterdir() if path.is_dir()):
+                for child in car_dir.iterdir():
+                    if not child.is_dir():
+                        continue
+                    if normalize(child.name) in {"wec", "elms"}:
+                        names.update(track.name for track in child.iterdir() if track.is_dir())
+                    else:
+                        names.add(child.name)
+        return sorted(names, key=str.lower)
+
+    def available_cars(self, creators: list[Path], track_name: str) -> list[dict]:
+        """Return database cars having a matching physical track folder."""
+        available: list[dict] = []
+        target_track = normalize(track_name)
+        for record in self.database.records["cars"]:
+            for creator in creators:
+                car_dir = find_child(creator, f"{record.get('brand', '')} {record.get('model', '')}")
+                if not car_dir:
+                    continue
+                direct = any(child.is_dir() and normalize(child.name) == target_track for child in car_dir.iterdir())
+                series = any(
+                    child.is_dir() and normalize(child.name) in {"wec", "elms"}
+                    and any(track.is_dir() and normalize(track.name) == target_track for track in child.iterdir())
+                    for child in car_dir.iterdir()
+                )
+                if (direct or series) and record not in available:
+                    available.append(record)
+                    break
+        return available
+
     def files(self, roots: list[tuple[Path, str]], track: dict) -> list[SetupFile]:
         """Collect files under selected roots for the selected track."""
         results: list[SetupFile] = []
-        track_name = normalize(track.get("name", ""))
+        track_name = normalize(track.get("_folder_name", track.get("name", "")))
         for root, creator in roots:
             track_dirs = [child for child in root.iterdir() if child.is_dir() and normalize(child.name) == track_name]
             for track_dir in track_dirs:
