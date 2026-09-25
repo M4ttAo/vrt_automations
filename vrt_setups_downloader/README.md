@@ -36,9 +36,35 @@ I file selezionati vengono copiati nella directory corrente da cui è stato
 avviato lo script o l'EXE. I nomi duplicati ricevono un suffisso numerico e non
 vengono sovrascritti.
 
+## Configurazione `.env`
+
+Oltre a `ROOT_DIR` e all'eventuale `DATABASE_DIR`, sono disponibili queste
+opzioni:
+
+- `DRY_RUN=False`: con `True` mostra i file selezionati ma non li copia.
+- `SUPERVISOR_MODE=False`: con `True` chiede conferma prima di copiare i file.
+
+I valori booleani accettati per entrambe le opzioni sono `True`, `False`, `1`,
+`0`, `yes`, `no`, `on` e `off` (senza distinzione tra maiuscole e minuscole).
+
+Esempio:
+
+```env
+ROOT_DIR=D:\SimSetups
+DATABASE_DIR=
+DRY_RUN=False
+SUPERVISOR_MODE=True
+```
+
+Con `DRY_RUN=True` la copia non viene eseguita anche se
+`SUPERVISOR_MODE=True`.
+
 ## Compilazione
 
 Eseguire `build.bat`. Il risultato è `dist\vrt_setups_downloader.exe`.
 
-Il database non viene incorporato nell'EXE. Distribuire il database accanto
-all'EXE o configurare `DATABASE_DIR` nel `.env`.
+Il database non viene incorporato nell'EXE. Se i tre file JSON non esistono,
+il downloader crea automaticamente un database iniziale con i record seed
+conosciuti. I database esistenti non vengono rigenerati. Per distribuire un
+database gia popolato, copiarlo accanto all'EXE o configurare `DATABASE_DIR`
+nel `.env`.
