@@ -1,4 +1,4 @@
-"""Access to shared setup databases with first-run bootstrap."""
+"""Read-only access to the shared setup databases."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -9,48 +9,17 @@ import orjson
 from utils import canonical_class, normalize
 
 
-SEEDS: dict[str, list[dict[str, Any]]] = {
-    "cars": [
-        {"brand": "Ferrari", "model": "296 GT3", "class": ["GT3"], "aliases": ["f296", "ferrari296", "296gt3"]},
-        {"brand": "Ferrari", "model": "488 GT3 Evo", "class": ["GT3"], "aliases": ["488gt3", "488gt3evo"]},
-        {"brand": "BMW", "model": "M4 GT3", "class": ["GT3"], "aliases": ["bmwm4gt3", "m4gt3"]},
-        {"brand": "Porsche", "model": "911 GT3 R (992)", "class": ["GT3"], "aliases": ["992", "992gt3r", "porsche992"]},
-        {"brand": "Lamborghini", "model": "Huracan GT3 Evo2", "class": ["GT3"], "aliases": ["huracan", "lamborghinigt3"]},
-        {"brand": "McLaren", "model": "720S GT3", "class": ["GT3"], "aliases": ["720s", "mclaren720"]},
-        {"brand": "Oreca", "model": "07", "class": ["LMP2", "P2"], "series": ["WEC"], "aliases": ["oreca07wec", "oreca 07 wec", "oreca wec lmp2"]},
-        {"brand": "Oreca", "model": "07", "class": ["LMP2", "P2"], "series": ["ELMS"], "aliases": ["oreca07elms", "oreca 07 elms", "oreca 07 lmp2 elms", "oreca elms p2"]},
-    ],
-    "tracks": [
-        {"name": "Daytona", "country": "United States", "aliases": ["daytona", "daytona road", "day"]},
-        {"name": "Monza", "country": "Italy", "aliases": ["monza"]},
-        {"name": "Spa-Francorchamps", "country": "Belgium", "aliases": ["spa", "spa francorchamps"]},
-        {"name": "Nurburgring", "country": "Germany", "aliases": ["nurburgring", "nordschleife"]},
-        {"name": "Imola", "country": "Italy", "aliases": ["imola"]},
-        {"name": "Silverstone", "country": "United Kingdom", "aliases": ["silverstone"]},
-        {"name": "Le Mans", "country": "France", "aliases": ["lemans", "le mans"]},
-    ],
-    "creators": [
-        {"name": "GO", "aliases": ["go"]},
-        {"name": "HYMO", "aliases": ["hymo"]},
-        {"name": "SIMSETUPS", "aliases": ["simsetups"]},
-    ],
-}
-
-
 class DatabaseStore:
-    """Load local JSON databases and bootstrap missing files with seed data."""
+    """Load cars, tracks and creators from local JSON files only."""
 
     def __init__(self, directory: Path) -> None:
         self.directory = directory
-        self.directory.mkdir(parents=True, exist_ok=True)
         self.records: dict[str, list[dict[str, Any]]] = {}
-        for kind in SEEDS:
+        for kind in ("cars", "tracks", "creators"):
             path = directory / f"{kind}.json"
-            if path.is_file():
-                self.records[kind] = orjson.loads(path.read_bytes())
-            else:
-                self.records[kind] = SEEDS[kind]
-                path.write_bytes(orjson.dumps(self.records[kind], option=orjson.OPT_INDENT_2))
+            if not path.is_file():
+                raise FileNotFoundError(f"Database non trovato: {path}")
+            self.records[kind] = orjson.loads(path.read_bytes())
 
     def car_label(self, record: dict[str, Any]) -> str:
         """Return the display label for a car including class and series."""

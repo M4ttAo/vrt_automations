@@ -176,14 +176,6 @@ def main() -> int:
         roots = search.car_roots(creators, car, series)
         files = search.files(roots, track)
         selected = choose_files(files, all_creators, f"gioco={games[0].name}, creator={'tutti' if all_creators else creators[0].name}, circuito={track['name']}, auto={database.car_label(car)}")
-        if config.dry_run:
-            console.print(f"DRY_RUN attivo: nessun file copiato. File selezionati: {len(selected)}", style="yellow")
-            return 0
-        if config.supervisor_mode:
-            answer = input(f"Sto copiando {len(selected)} file nella cartella corrente. Procedo? (s/n): ").strip().lower()
-            if answer not in {"s", "si", "sì", "y", "yes"}:
-                console.print("Copia annullata.", style="yellow")
-                return 0
         copied = copy_to_current([item.path for item in selected])
         console.print(f"Scaricati {len(copied)} file nella cartella corrente: {Path.cwd()}")
         return 0

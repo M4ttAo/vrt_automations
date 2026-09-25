@@ -16,8 +16,6 @@ class Config:
     base_dir: Path
     root_dir: Path
     database_dir: Path
-    dry_run: bool
-    supervisor_mode: bool
 
     @classmethod
     def load(cls) -> "Config":
@@ -30,10 +28,4 @@ class Config:
         candidates.extend((base / "db", base.parent / "vrt_setups_uploader" / "db", Path.cwd() / "db"))
         required = ("cars.json", "tracks.json", "creators.json")
         database = next((path for path in candidates if all((path / name).is_file() for name in required)), candidates[0] if candidates else base / "db")
-        return cls(
-            base,
-            root,
-            database,
-            os.getenv("DRY_RUN", "False").strip().lower() in {"1", "true", "yes", "on"},
-            os.getenv("SUPERVISOR_MODE", "False").strip().lower() in {"1", "true", "yes", "on"},
-        )
+        return cls(base, root, database)
